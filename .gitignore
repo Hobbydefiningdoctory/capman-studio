@@ -4,6 +4,7 @@ node_modules/
 # Generated exports and release artifacts
 exports/
 *.zip
+*.zipFile.zip
 
 # Build output (Phase 2 web dashboard will generate this)
 dist/
