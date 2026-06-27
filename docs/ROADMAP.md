@@ -1,8 +1,8 @@
 # capman-studio — Product Roadmap
 
-**Last updated:** Step 9.1 — May 2026  
-**Status:** Active development  
-**Context:** capman v0.5.5 published. ADR-003 resolved. All reviews and security audits clean.
+**Last updated:** June 2026 — Phase 1 CLI complete  
+**Status:** Phase 1 complete. Phase 2 (web dashboard) planned.  
+**Context:** All CLI commands shipped and documented. capman v0.6.2 contract validated.
 
 ---
 
@@ -64,92 +64,72 @@ All items below are shipped, reviewed, and audit-clean.
 
 ---
 
-## Phase 1 — CLI (Active)
+## Phase 1 — CLI ✅ Complete
 
-Remaining CLI features in priority order. Each builds on the last.
+All CLI commands shipped, reviewed, and documented.
 
 ---
 
-### Step 9.2 — `capman-studio diff`
+### `capman-studio diff` ✅ Shipped
 
-**What:** Compare two manifest versions. Show exactly what changed — capabilities added, removed, modified, renamed.
+Compares two manifest versions and shows exactly what changed — capabilities added, removed, modified, or renamed. Rename detection uses a conservative heuristic (description + resolver type must match) to avoid false positives.
 
-**Why now:** When devs are actively changing `capman.config.js` — the exact situation capman-studio was built for — knowing what changed between versions is the first question they ask. Zero new dependencies. Highest developer value of any remaining CLI feature.
+Reads `manifest.json` files directly via `fs.readFileSync` rather than a capman subprocess — a justified exception to Option B, since no capman command exposes structured capability JSON (ADR-005).
 
-**Usage:**
+Fields compared: `name`, `description`, `resolver.type`, `privacy.level`, `examples`, `params`, `returns` (v0.6+), `lifecycle.status` (v0.6+). All array comparisons are order-insensitive.
+
 ```bash
 capman-studio diff manifest-old.json manifest-new.json
+capman-studio diff manifest-old.json manifest-new.json --verbose
 capman-studio diff manifest-old.json manifest-new.json --json
 ```
 
-**Output:**
-```
-  DIFF manifest-old.json → manifest-new.json
-
-  + check_availability added api public
-  ~ get_order_status modified api public (description changed)
-  - cancel_subscription removed
-  ↻ nav_to_cart renamed nav_to_basket
-
-  3 capabilities changed · 1 added · 1 removed · 1 renamed
-```
-
-**Files:**
-- `bin/lib/cmd-diff.js` — diff command router
-- `bin/lib/diff/diff-engine.js` — manifest comparison logic
-- `bin/lib/diff/diff-render.js` — terminal renderer
-- `bin/studio.js` — add `diff` case
-- `docs/COMMANDS.md` — document
-- `docs/STRUCTURE.md` — update
+Exit code 1 when manifests differ — usable as a CI change-detection gate.
 
 ---
 
-### Step 10 — `capman-studio generate-suite`
+### `capman-studio generate-suite` ✅ Shipped
 
-**What:** Scaffold a starter suite file from the manifest. One capability per case, correct format, ready to edit.
+Scaffolds a starter eval suite file from the manifest. Generates one test case per capability using a 3-tier query selection strategy (examples → description → name), appends an out-of-scope sentinel, and flags deprecated capabilities in the case notes.
 
-**Why:** Solves the adoption problem. Right now a developer writes their first suite file by hand. This eliminates that friction entirely.
+Eliminates the friction of writing the first suite file by hand — the most common reason developers skip regression testing entirely.
 
-**Usage:**
 ```bash
 capman-studio generate-suite
 capman-studio generate-suite --out my-suite.json
 capman-studio generate-suite --manifest other.json
+capman-studio generate-suite --overwrite   # replace existing file
+capman-studio generate-suite --json        # print to stdout instead of writing
 ```
-
-**Output:** A ready-to-edit `eval-suite.json` with one test case per capability, using the first example as the query and the capability ID as `expected`.
 
 ---
 
-### Step 11 — `capman-studio watch`
+### `capman-studio watch` ✅ Shipped
 
-**What:** Re-run inspect automatically when `manifest.json` changes.
+Watches `manifest.json` for changes and automatically re-runs inspect or suite on every save. Closes the inner dev loop: edit `capman.config.js` → `capman generate` → studio updates immediately.
 
-**Why:** Closes the inner dev loop. Edit `capman.config.js` → capman regenerates → studio re-inspects. Removes the manual step that breaks flow.
+Implemented with `fs.watchFile` (500ms polling, no external dependencies). Includes a 300ms debounce and a concurrency guard — if a run is still in progress when the next change fires, the follow-up is queued rather than dropped.
 
-**Usage:**
 ```bash
 capman-studio watch
-capman-studio watch --suite cases.json # re-run suite on every change
+capman-studio watch --suite cases.json          # re-run suite on change
+capman-studio watch --suite cases.json --threshold=80
 ```
-
-**Dependency:** `chokidar` (or Node native `fs.watch` with debounce — no new dep if we use native).
 
 ---
 
-### Step 12 — `capman-studio ci`
+### `capman-studio ci` ✅ Shipped
 
-**What:** Opinionated single command for CI pipelines. Runs: validate manifest → run suite → enforce threshold. One line in a GitHub Actions YAML.
+Opinionated three-stage CI pipeline in a single command: [1] `capman validate` for manifest validation, [2] suite runner, [3] threshold check. All stages always run — a full picture in one pass. Exit code 1 if any stage fails.
 
-**Why:** Makes the whole tool feel production-grade. Wraps everything we've built into a single command developers drop into `.github/workflows`.
-
-**Usage:**
 ```bash
+capman-studio ci --suite cases.json
 capman-studio ci --suite cases.json --threshold=80
+capman-studio ci --suite cases.json --threshold=80 --json
 ```
 
-**GitHub Actions:**
 ```yaml
+# GitHub Actions — one line drops into any workflow
 - name: capman-studio CI
   run: capman-studio ci --suite cases.json --threshold=80 --json
 ```

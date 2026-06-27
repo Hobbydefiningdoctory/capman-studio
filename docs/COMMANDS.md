@@ -36,7 +36,8 @@ Read this file first. You should not need to read source code to use this tool.
 pnpm add -g capman
 
 # Install capman-studio
-git clone <repo-url>
+git clone [(https://github.com/Hobbydefiningdoctory/capman-studio.git)](https://github.com/Hobbydefiningdoctory/capman-studio.git)
+
 cd capman-studio
 pnpm install
 

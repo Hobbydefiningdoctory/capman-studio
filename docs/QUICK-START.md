@@ -56,7 +56,8 @@ You should see a list of commands.
 
 **✅ capman-studio installed**  
 ```bash
-git clone <your-repo-url>    ← CHANGE THIS to the actual repo URL
+git clone [(https://github.com/Hobbydefiningdoctory/capman-studio.git)](https://github.com/Hobbydefiningdoctory/capman-studio.git)
+
 cd capman-studio
 pnpm install
 ```

@@ -17,7 +17,8 @@ Developer tooling for [capman](https://www.npmjs.com/package/capman) — inspect
 pnpm add -g capman
 
 # 2. Clone and install capman-studio
-git clone <your-repo-url>
+git clone [(https://github.com/Hobbydefiningdoctory/capman-studio.git)](https://github.com/Hobbydefiningdoctory/capman-studio.git)
+
 cd capman-studio
 pnpm install
 

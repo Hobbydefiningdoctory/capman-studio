@@ -32,6 +32,3 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
-
-# npm lockfile — this project uses pnpm (pnpm-lock.yaml is authoritative)
-package-lock.json

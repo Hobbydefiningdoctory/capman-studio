@@ -3,7 +3,7 @@
 This is the living file tree for capman-studio.  
 Every file and folder is documented here when it is created, updated, or deleted.
 
-**Last updated:** Step 15.5 — File Index reconciliation, cosmetic cleanups  
+**Last updated:** June 2026 — ROADMAP.md status corrected (file is present); suite-runner.js added to File Index  
 **capman version contract last validated against:** 0.6.2  
 **capman dependency:** None — capman is called as a global CLI subprocess (Option B). It must be installed globally via `pnpm add -g capman`. It is intentionally absent from `package.json` dependencies. Do not add it.
 
@@ -20,6 +20,7 @@ capman-studio/
 │       ├── cmd-eval.js                ← eval command router (dispatches by --mode)
 │       ├── cmd-diff.js                ← diff command entry point
 │       ├── generate-suite.js          ← generate-suite command — scaffold suite from manifest
+│       ├── suite-runner.js            ← shared canonical suite execution loop (used by eval-suite, watch, ci)
 │       ├── watch.js                   ← watch command — file watcher, re-runs inspect or suite on change
 │       ├── ci.js                      ← ci command — validate + suite + threshold in one pipeline step
 │       ├── eval/
@@ -106,6 +107,16 @@ Every file listed alphabetically with its purpose, status, and the step it was i
 | **Introduced** | Step 11.1 |
 | **Purpose** | `generate-suite` command. Reads `manifest.json` directly (ADR-005 pattern — no capman command outputs structured capability JSON). Generates one test case per capability using 3-tier query selection (examples → description → name). Appends out-of-scope sentinel. Flags deprecated capabilities in notes. Validates manifest and output paths within CWD via `realpathSync`. `--overwrite` required to replace existing file. Supports `--json` stdout output. |
 | **Last updated** | Step 11.1 |
+
+---
+
+### `bin/lib/suite-runner.js`
+| Field | Value |
+|---|---|
+| **Status** | Active |
+| **Introduced** | Step 15 (refactor) |
+| **Purpose** | Single canonical suite execution loop shared by `eval-suite.js`, `watch.js`, and `ci.js`. Exports `runSuiteCases()` (batch runner), `renderCase()`, `renderCaseError()`, `renderSummary()`, and `renderFailures()`. Extracted from `eval-suite.js` when duplicate loop implementations in `watch.js` and `ci.js` diverged — watch was missing the query-length guard; ci had incorrect query arg ordering. Callers are responsible for file loading, path validation, header rendering, and `process.exit()` decisions. |
+| **Last updated** | Step 15 — extracted from eval-suite.js; adopted by watch.js and ci.js |
 
 ---
 
@@ -202,10 +213,10 @@ Every file listed alphabetically with its purpose, status, and the step it was i
 ### `docs/ROADMAP.md`
 | Field | Value |
 |---|---|
-| **Status** | ⚠️ Documented but **missing from package** — see reconciliation note below |
+| **Status** | Active |
 | **Introduced** | Step 9.1 |
 | **Purpose** | Full product roadmap. Phase 1 (CLI), Phase 2 (web dashboard), Phase 3 (capman-agent — headless server, manifest registry, audit layer). Includes architecture diagram, displacement map, decision gates, and open items. |
-| **Last updated** | Step 9.1 — content last written; **not present in the Phase 1 zip or any export since**. Flagged in the Phase 1 codebase review (punch-list item #1) and confirmed still absent as of the Step 15 reconciliation pass below. |
+| **Last updated** | Step 9.1 — full content written and committed. |
 
 ---
 
@@ -273,11 +284,9 @@ gaps.
 
 | Result | Detail |
 |---|---|
-| Files in package | 18 (excluding lockfiles/.gitignore/.replit) |
-| Files documented above | 19 (18 real files + `docs/ROADMAP.md`, which is documented but **not present** — see its entry above) |
-| Discrepancy | `docs/ROADMAP.md` — content was written in Step 9.1 but the file has not been included in any package since, including this one. Status field above updated to reflect this honestly rather than claiming "Active". |
-| Action needed | Re-create `docs/ROADMAP.md` from the Step 9.1 content (full Phase 1/2/3 roadmap, capman-agent vision) and include it in the next export, **or** remove its File Index entry and all changelog references if the roadmap doc is being intentionally retired. |
-| Everything else | ✅ 1:1 match — every other documented file exists, and every other existing file is documented. |
+| Files in package | 20 (excluding lockfiles/.gitignore/.replit) |
+| Files documented above | 20 |
+| Discrepancy | None — ✅ 1:1 match. All documented files exist; all existing files are documented. |
 
 ---
 
