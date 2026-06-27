@@ -1,0 +1,38 @@
+{
+  "name": "capman-studio",
+  "version": "0.1.0",
+  "description": "Developer tooling for capman — inspect manifests, test queries, run eval suites.",
+  "type": "commonjs",
+  "bin": {
+    "capman-studio": "./bin/studio.js"
+  },
+  "scripts": {
+    "build": "echo 'No build step — pure CommonJS CLI'",
+    "start": "node bin/studio.js",
+    "export": "node scripts/make-zip.js"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "comment": "Pin transitive deps — run pnpm audit --recursive in CI to keep these current"
+    }
+  },
+  "capman": {
+    "command": "capman",
+    "comment": "The CLI command used to call capman. Change this if capman is not on PATH."
+  },
+  "keywords": [
+    "capman",
+    "ai",
+    "capability",
+    "manifest",
+    "developer-tools"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "adm-zip": "^0.5.17"
+  }
+}

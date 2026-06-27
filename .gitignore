@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Generated exports
+exports/
+
+# Build output (Phase 2 web dashboard will generate this)
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# Replit
+.replit
+replit.nix
+.upm/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
